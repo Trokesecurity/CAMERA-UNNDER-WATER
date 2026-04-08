@@ -1,0 +1,27 @@
+using UnityEngine;
+
+namespace SubDrone.CameraSystem
+{
+    public sealed class UnderwaterCameraFollow : MonoBehaviour
+    {
+        public Transform target;
+        public Vector3 offset = new(0f, 2.2f, -6.5f);
+        public float positionSmooth = 5f;
+        public float rotationSmooth = 3.5f;
+
+        private void LateUpdate()
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            var desiredPosition = target.TransformPoint(offset);
+            transform.position = Vector3.Lerp(transform.position, desiredPosition, 1f - Mathf.Exp(-positionSmooth * Time.deltaTime));
+
+            var lookPoint = target.position + target.forward * 6f;
+            var lookRotation = Quaternion.LookRotation(lookPoint - transform.position, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 1f - Mathf.Exp(-rotationSmooth * Time.deltaTime));
+        }
+    }
+}
